@@ -1,0 +1,112 @@
+
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+
+#define DIAS_SEMANA 7
+#define MAX_ALMOCOS 100
+#define MAX_NOME 100
+
+// Função para verificar a veracidade do nome do cliente - apenas letras e espaços
+int nome_valido(char *nome) {
+    for (int i = 0; nome[i] != '\0'; i++) {
+        if (!isalpha(nome[i]) && nome[i] != ' ') return 0;
+    }
+    return 1;
+}
+
+int main() {
+    int almocos[DIAS_SEMANA];
+    char usuarios[DIAS_SEMANA][MAX_ALMOCOS][MAX_NOME];
+    char registrador[MAX_NOME];
+    int total_almocos;
+    float media_semanal;
+    char dias[][10] = {"Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"};
+    char continuar_operacao;
+
+    printf("=== Bem-vindos(as) ao AlmoçoGest ===\n");
+    printf(" === Por: Ellen F. Martins ===\n");
+    printf(" Sistema de controle de almoço, com registro de clientes\n e funcionários.\n");
+    printf(" Médias de almoço, totalizador e múltiplas consultas.\n");
+  
+  
+    
+    do {
+        printf("Digite o nome do funcionário que registra os almoços: \n");
+        fgets(registrador, MAX_NOME, stdin);
+        registrador[strcspn(registrador, "\n")] = '\0';
+        if (!nome_valido(registrador)) printf("Nome inválido! Apenas são aceitos letras e espaços.\n");
+    } while (!nome_valido(registrador));
+
+    do {
+        total_almocos = 0;
+
+        for (int i = 0; i < DIAS_SEMANA; i++) {
+            int quantidade;
+            int resultado;
+
+            do {
+                printf("Digite o número de almoços servidos %s %s: ",
+                       (i == 0 || i == 6) ? "no" : "na", dias[i]);
+                resultado = scanf("%d", &quantidade);
+                getchar();
+
+                if (resultado != 1 || quantidade < 0 || quantidade > MAX_ALMOCOS)
+                    printf("Valor inválido! Digite um número entre 0 e %d.\n", MAX_ALMOCOS);
+            } while (resultado != 1 || quantidade < 0 || quantidade > MAX_ALMOCOS);
+
+            almocos[i] = quantidade;
+
+            for (int j = 0; j < quantidade; j++) {
+                do {
+                    printf("Digite o nome do cliente %d: ", j + 1);
+                    fgets(usuarios[i][j], MAX_NOME, stdin);
+                    usuarios[i][j][strcspn(usuarios[i][j], "\n")] = '\0';
+                    if (!nome_valido(usuarios[i][j])) printf("Nome inválido! Apenas são aceitos letras e espaços.\n");
+                } while (!nome_valido(usuarios[i][j]));
+            }
+
+            total_almocos += quantidade;
+        }
+
+        // Relatório
+        printf("\nRELATÓRIO SEMANAL DE ALMOÇOS (Registrado por: %s)\n", registrador);
+        for (int i = 0; i < DIAS_SEMANA; i++) {
+            printf("%s: %d almoços\n", dias[i], almocos[i]);
+            if (almocos[i] > 0) {
+                printf("Usuarios:\n");
+                for (int j = 0; j < almocos[i]; j++)
+                    printf(" - %s\n", usuarios[i][j]);
+            } else {
+                printf("Nenhum usuario registrado.\n");
+            }
+        }
+
+        media_semanal = (float)total_almocos / DIAS_SEMANA;
+        printf("MÉDIA SEMANAL DE ALMOÇOS SERVIDOS: %.2f\n", media_semanal);
+
+        printf("\nDeseja fazer outra consulta? (S/N): ");
+        scanf(" %c", &continuar_operacao);
+        getchar();
+
+        if (continuar_operacao == 'S' || continuar_operacao == 's') {
+            char troca;
+            printf("Deseja trocar o registrador? (S/N): \n");
+            scanf(" %c", &troca);
+            getchar();
+            if (troca == 'S' || troca == 's') {
+                do {
+                    printf("Digite o nome do novo registrador: \n");
+                    fgets(registrador, MAX_NOME, stdin);
+                    registrador[strcspn(registrador, "\n")] = '\0';
+                    if (!nome_valido(registrador)) printf("Nome inválido! Apenas são aceitos letras e espaços.\n");
+                } while (!nome_valido(registrador));
+            }
+        }
+
+    } while (continuar_operacao == 'S' || continuar_operacao == 's');
+
+    printf("Obrigada por utilizar o sistema!\n");
+    return 0;
+}
+
